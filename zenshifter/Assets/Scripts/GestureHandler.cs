@@ -36,7 +36,7 @@ public class GestureHandler : MonoBehaviour {
 		}
 		else {
 			grid.TouchDownRow (worldPoint);
-		}
+		}  
 	}
 
 	// Pan moved.  Tell the grid what the new offset is.

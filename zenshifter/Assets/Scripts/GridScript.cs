@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
-
 
 
 public class GridScript : MonoBehaviour {
 
-	public enum GridState { NoTouch, DraggingRow, DraggingCol};
+	public enum GridState { NoTouch, DraggingRow, DraggingCol, Sliding };
 
 	public GridState state;
 
@@ -22,6 +22,9 @@ public class GridScript : MonoBehaviour {
 	private float grid_size = 1.85f;
 
 	public GameObject[][] grid;
+	// To simulate a neverending wrap-around, we secretly just add 2 copied rows/cols to either end of the 
+	//  currently dragged rows.
+	public List<GameObject> buffer_tiles = new List<GameObject>();
 
 	// Set a row's "offset" to the specified amount.
 	void SlideRow(int row_ndx, float offset) {
@@ -29,6 +32,12 @@ public class GridScript : MonoBehaviour {
 			var tile_pos = grid [row_ndx] [x].transform.localPosition;
 			tile_pos += new Vector3 (offset, 0);
 			grid [row_ndx] [x].transform.localPosition = tile_pos;
+		}
+
+		foreach (GameObject tile in buffer_tiles) {
+			var tile_pos = tile.transform.localPosition;
+			tile_pos += new Vector3 (offset, 0);
+			tile.transform.localPosition = tile_pos;
 		}
 	}
 
@@ -43,6 +52,7 @@ public class GridScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
 		// Pre populate the grid
 		grid = new GameObject[num_rows][];
 
@@ -54,6 +64,20 @@ public class GridScript : MonoBehaviour {
 				grid [y] [x].transform.parent = transform;
 				grid [y] [x].transform.Translate (transform.position.x, transform.position.y, 0);
 			}
+		}
+	}
+
+	// Slap a copy row on the side of the actual row
+	public void AddCopycatRow(int dragging_row, int offset) {
+		for (int x = 0; x < num_cols; x++) {
+			var tile = grid [dragging_row] [x];
+			var copycat = (GameObject)Instantiate (tile);
+			buffer_tiles.Add (copycat);
+
+			// It's in worldspace by default, treat it like it's my kid
+			copycat.transform.Translate (transform.position);
+
+			copycat.transform.Translate (new Vector3 (offset * num_cols * grid_size, 0));
 		}
 	}
 
@@ -69,6 +93,11 @@ public class GridScript : MonoBehaviour {
 		} else {
 			dragging_row = row;
 			state = GridState.DraggingRow;
+
+			AddCopycatRow (dragging_row, -2);
+			AddCopycatRow (dragging_row, -1);
+			AddCopycatRow (dragging_row, 1);
+			AddCopycatRow (dragging_row, 2);
 		}
 	}
 
@@ -104,6 +133,15 @@ public class GridScript : MonoBehaviour {
 	// Set state back to "not draggin fam"
 	public void TouchEnded() {
 		state = GridState.NoTouch;
+
+		// Wipe buffer tiles
+		foreach (GameObject tile in buffer_tiles) {
+			Destroy (tile);
+		}
+
+		buffer_tiles.Clear ();
+
+		// Snap  everybody to a grid, and modulo-ify them back to the right place
 	}
 	
 	// Update is called once per frame
