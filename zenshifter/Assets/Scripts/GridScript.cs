@@ -63,6 +63,9 @@ public class GridScript : MonoBehaviour {
 					new Vector3(x * grid_size, y * grid_size, 0), Quaternion.identity);
 				grid [y] [x].transform.parent = transform;
 				grid [y] [x].transform.Translate (transform.position.x, transform.position.y, 0);
+
+				grid [y] [x].GetComponent<TileScript> ().base_posn = grid [y] [x].transform.localPosition;
+				grid [y] [x].GetComponent<TileScript> ().RandomizeType ();
 			}
 		}
 	}
@@ -130,10 +133,11 @@ public class GridScript : MonoBehaviour {
 		}
 	}
 
-	// Set state back to "not draggin fam"
-	public void TouchEnded() {
-		state = GridState.NoTouch;
+	int ModWrap(int k, int n) {  return ((k %= n) < 0) ? k+n : k;  }
 
+	// Set state back to "not draggin fam"
+	public void TouchEnded(Vector3 drag_offset) {
+		
 		// Wipe buffer tiles
 		foreach (GameObject tile in buffer_tiles) {
 			Destroy (tile);
@@ -142,6 +146,50 @@ public class GridScript : MonoBehaviour {
 		buffer_tiles.Clear ();
 
 		// Snap  everybody to a grid, and modulo-ify them back to the right place
+		if (state == GridState.DraggingCol) {
+
+			var offset = drag_offset.y;
+			offset /= grid_size;
+			offset = Mathf.Round (offset);
+
+			int num_moved = Mathf.RoundToInt(offset);
+			offset *= grid_size;
+
+		} else if (state == GridState.DraggingRow) {
+
+			var offset = drag_offset.x;
+			offset /= grid_size;
+			offset = Mathf.Round (offset);
+
+			// Number of indexes the tiles have shifted.
+			int num_moved = Mathf.RoundToInt(offset);
+			offset *= grid_size;
+
+			// this list will contain what we need to stick back into the grid at the [dragging_row]th row
+			List<GameObject> new_row = new List<GameObject> ();
+
+			for (int x = 0; x < num_cols; x++) {
+				var tile_pos = grid [dragging_row] [x].GetComponent<TileScript> ().base_posn;
+				tile_pos += new Vector3 (offset, 0);
+				grid [dragging_row] [x].transform.localPosition = tile_pos;
+
+				var wrapped_offset = ModWrap(x - num_moved, num_cols);
+				print ("Wrapped offset... " + wrapped_offset);
+				new_row.Add (grid [dragging_row] [wrapped_offset]);
+			}
+
+			for(int x = 0; x < num_cols; x++) {
+				grid [dragging_row] [x] = new_row [x];
+				var pos = new_row [x].transform.localPosition;
+				pos.x = x * grid_size;
+				new_row [x].transform.localPosition = pos;
+			}
+
+		} else {
+			print ("Ah man I screwed something up.. somewhere");
+		}
+
+		state = GridState.NoTouch;
 	}
 	
 	// Update is called once per frame

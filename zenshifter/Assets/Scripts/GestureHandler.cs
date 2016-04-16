@@ -7,6 +7,9 @@ public class GestureHandler : MonoBehaviour {
 
 	public GridScript grid;
 
+	// How far has the pan gesture gone in total?
+	public Vector3 total_offset;
+
 	// Register for pan gesture events
 	private void OnEnable() {
 		GetComponent<PanGesture>().PanStarted += PanBegan;
@@ -26,8 +29,11 @@ public class GestureHandler : MonoBehaviour {
 
 	// Finger down!  Tell the grid, it'll start dragging a row or col if it can.
 	void PanBegan(object sender, EventArgs e) {
+		
 		var panGesture = sender as PanGesture;
 		var worldPoint = Camera.main.ScreenToWorldPoint(panGesture.ScreenPosition);
+
+		total_offset = Vector3.zero;
 
 		// Determine if pan horizontal or vertical
 		var dir = panGesture.LocalDeltaPosition;
@@ -44,11 +50,14 @@ public class GestureHandler : MonoBehaviour {
 		var panGesture = sender as PanGesture;
 
 		grid.TouchMoved (panGesture.LocalDeltaPosition);
+		total_offset += panGesture.LocalDeltaPosition;
 	}
 
 	// Pan ended.  Tell the grid to snap to whatever.
 	void PanEnded(object sender, EventArgs e) {
-		grid.TouchEnded();
+		var panGesture = sender as PanGesture;
+
+		grid.TouchEnded (total_offset);
 	}
 
 	public void Tapped(object sender, EventArgs e) {
