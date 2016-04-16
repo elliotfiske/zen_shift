@@ -48,6 +48,12 @@ public class GridScript : MonoBehaviour {
 			tile_pos += new Vector3 (0, offset);
 			grid [y] [col_ndx].transform.localPosition = tile_pos;
 		}
+
+		foreach (GameObject tile in buffer_tiles) {
+			var tile_pos = tile.transform.localPosition;
+			tile_pos += new Vector3 (0, offset);
+			tile.transform.localPosition = tile_pos;
+		}
 	}
 
 	// Use this for initialization
@@ -84,6 +90,20 @@ public class GridScript : MonoBehaviour {
 		}
 	}
 
+	// Slap a copy col on the top and bottom of the actual col
+	public void AddCopycatCol(int dragging_col, int offset) {
+		for (int y = 0; y < num_rows; y++) {
+			var tile = grid [y] [dragging_col];
+			var copycat = (GameObject)Instantiate (tile);
+			buffer_tiles.Add (copycat);
+
+			// It's in worldspace by default, treat it like it's my kid
+			copycat.transform.Translate (transform.position);
+
+			copycat.transform.Translate (new Vector3 (0, offset * num_rows * grid_size));
+		}
+	}
+
 	// Calculate which row we're dragging, if any
 	public void TouchDownRow(Vector3 world_point) {
 		var local_point = world_point - transform.position;
@@ -116,6 +136,11 @@ public class GridScript : MonoBehaviour {
 		} else {
 			dragging_col = col;
 			state = GridState.DraggingCol;
+
+			AddCopycatCol (dragging_col, -2);
+			AddCopycatCol (dragging_col, -1);
+			AddCopycatCol (dragging_col, 1);
+			AddCopycatCol (dragging_col, 2);
 		}
 	}
 
@@ -152,8 +177,32 @@ public class GridScript : MonoBehaviour {
 			offset /= grid_size;
 			offset = Mathf.Round (offset);
 
+			// integer number of indexes the tiles have shifted.
 			int num_moved = Mathf.RoundToInt(offset);
 			offset *= grid_size;
+
+			// this list will contain what we need to stick back into the grid at the [dragging_row]th row
+			List<GameObject> new_col = new List<GameObject> ();
+
+			for (int y = 0; y < num_rows; y++) {
+				var tile_pos = grid [y] [dragging_col].GetComponent<TileScript> ().base_posn;
+				tile_pos += new Vector3 (0, offset);
+				grid [y] [dragging_col].transform.localPosition = tile_pos;
+
+				var wrapped_offset = ModWrap(y - num_moved, num_rows);
+				print ("Wrapped offset... " + wrapped_offset);
+				new_col.Add (grid [wrapped_offset] [dragging_col]);
+			}
+
+			// Iterate through the new column and put its elements in the right place
+			for(int y = 0; y < num_rows; y++) {
+				grid [y] [dragging_col] = new_col [y];
+				var pos = new_col [y].transform.localPosition;
+				pos.y = y * grid_size;
+				new_col [y].transform.localPosition = pos;
+
+				new_col [y].GetComponent<TileScript> ().base_posn = pos;
+			}
 
 		} else if (state == GridState.DraggingRow) {
 
@@ -178,11 +227,14 @@ public class GridScript : MonoBehaviour {
 				new_row.Add (grid [dragging_row] [wrapped_offset]);
 			}
 
+			// Iterate through the new row and put its elements in the right place
 			for(int x = 0; x < num_cols; x++) {
 				grid [dragging_row] [x] = new_row [x];
 				var pos = new_row [x].transform.localPosition;
 				pos.x = x * grid_size;
 				new_row [x].transform.localPosition = pos;
+
+				new_row [x].GetComponent<TileScript> ().base_posn = pos;
 			}
 
 		} else {
