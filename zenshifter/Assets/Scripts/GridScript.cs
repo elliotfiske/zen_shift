@@ -223,7 +223,6 @@ public class GridScript : MonoBehaviour {
 				grid [dragging_row] [x].transform.localPosition = tile_pos;
 
 				var wrapped_offset = ModWrap(x - num_moved, num_cols);
-				print ("Wrapped offset... " + wrapped_offset);
 				new_row.Add (grid [dragging_row] [wrapped_offset]);
 			}
 
