@@ -80,8 +80,10 @@
 -define:UNITY_EDITOR_64
 -define:UNITY_EDITOR_OSX
 'Assets/Scripts/Animatable.cs'
+'Assets/Scripts/AutocleanupParticles.cs'
 'Assets/Scripts/GestureHandler.cs'
 'Assets/Scripts/GridScript.cs'
+'Assets/Scripts/MatchMaker.cs'
 'Assets/Scripts/TileScript.cs'
 'Assets/TouchScript/Examples/General/2D - Double Tap/Scripts/DoubleTap_Sprite.cs'
 'Assets/TouchScript/Examples/General/Hierarchy/Scripts/Heirarchy_Button.cs'

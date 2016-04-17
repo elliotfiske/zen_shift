@@ -15,8 +15,8 @@ public class GridScript : MonoBehaviour {
 	public int dragging_row = -1;
 	public int dragging_col = -1;
 
-	private int num_rows = 5;
-	private int num_cols = 6;
+	public int num_rows = 5;
+	public int num_cols = 6;
 
 	// Multiply the x, y coords by the grid_size to get their pixel coords
 	private float grid_size = 1.85f;
@@ -281,6 +281,8 @@ public class GridScript : MonoBehaviour {
 					
 				Destroy (drag_parent);
 				state = GridState.NoTouch;
+
+				GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
 			}
 		}
 
