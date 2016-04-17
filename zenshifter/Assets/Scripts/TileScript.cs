@@ -16,6 +16,8 @@ public class TileScript : MonoBehaviour {
 
 	public GameObject particle_template;
 
+	public bool ded = false;
+
 	// Use this for initialization
 	void Start() {
 		

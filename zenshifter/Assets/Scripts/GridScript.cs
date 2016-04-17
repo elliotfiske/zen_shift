@@ -5,12 +5,11 @@ using System.Collections;
 
 public class GridScript : MonoBehaviour {
 
-	public enum GridState { NoTouch, DraggingRow, DraggingCol, SlidingRow, SlidingCol };
+	public enum GridState { NoTouch, DraggingRow, DraggingCol, SlidingRow, SlidingCol, ResolvingMatches };
 
 	public GridState state;
 
 	public GameObject square_template;
-	public GameObject circle_template;
 
 	public int dragging_row = -1;
 	public int dragging_col = -1;
@@ -19,7 +18,7 @@ public class GridScript : MonoBehaviour {
 	public int num_cols = 6;
 
 	// Multiply the x, y coords by the grid_size to get their pixel coords
-	private float grid_size = 1.85f;
+	public float grid_size = 1.85f;
 
 	public GameObject[][] grid;
 	// To simulate a neverending wrap-around, we secretly just add 2 copied rows/cols to either end of the 
@@ -219,7 +218,7 @@ public class GridScript : MonoBehaviour {
 	void Update () {
 		// See if we should wait for animations to finish
 		if (state == GridState.SlidingRow || state == GridState.SlidingCol) {
-			if (!drag_parent.GetComponent<Animatable>().Animating) {
+			if (!drag_parent.GetComponent<Animatable> ().Animating) {
 				
 				// Wipe buffer tiles
 				foreach (GameObject tile in buffer_tiles) {
@@ -233,7 +232,7 @@ public class GridScript : MonoBehaviour {
 					List<GameObject> new_col = new List<GameObject> ();
 
 					for (int y = 0; y < num_rows; y++) {
-						var wrapped_offset = ModWrap(y - num_moved, num_rows);
+						var wrapped_offset = ModWrap (y - num_moved, num_rows);
 						new_col.Add (grid [wrapped_offset] [dragging_col]);
 
 						print ("Hey col: " + num_moved);
@@ -257,7 +256,7 @@ public class GridScript : MonoBehaviour {
 					List<GameObject> new_row = new List<GameObject> ();
 
 					for (int x = 0; x < num_cols; x++) {
-						var wrapped_offset = ModWrap(x - num_moved, num_cols);
+						var wrapped_offset = ModWrap (x - num_moved, num_cols);
 						new_row.Add (grid [dragging_row] [wrapped_offset]);
 
 						print ("Hey row: " + num_moved);
@@ -280,11 +279,36 @@ public class GridScript : MonoBehaviour {
 				}
 					
 				Destroy (drag_parent);
-				state = GridState.NoTouch;
+				state = GridState.ResolvingMatches;
 
 				GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
 			}
+		} else if (state == GridState.ResolvingMatches) {
+			ResolveMatches ();	
+		}
+	}
+
+	public void ResolveMatches() {
+		// Check if all the tiles are done falling
+		bool done = true;
+		for (int x = 0; x < num_cols; x++) {
+			for (int y = 0; y < num_rows; y++) {
+				var tile = grid [y] [x];
+
+				if (tile == null) {
+					print ("Bad news boys. Null tile at row " + y + " col " + x);
+				}
+
+				if (!tile.GetComponent<Rigidbody2D> ().isKinematic && tile.GetComponent<Rigidbody2D> ().velocity.y != 0) {
+					done = false;
+				}
+			}
 		}
 
+		if (done) {
+			// Adjust tile base_posns and 
+			state = GridState.NoTouch;
+		}
 	}
+
 }
