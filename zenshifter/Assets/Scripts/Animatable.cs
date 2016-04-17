@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public enum AnimType { Transform, Scale }
+public enum AnimType { Position, Scale }
 public enum AnimFunc { Linear, Quadratic, Cubic }
 
 public struct Vector3Anim {
@@ -14,7 +14,7 @@ public struct Vector3Anim {
 	public double duration;
 
 	public Vector3 GetCurrentValue() {
-		double u = (DateTime.Now.Millisecond - start_time) / (duration);
+		double u = (Time.time - start_time) / (duration);
 		double s = 0;
 
 		switch (func) {
@@ -35,7 +35,8 @@ public struct Vector3Anim {
 	}
 
 	public bool Done() {
-		return DateTime.Now.Millisecond > start_time + duration;
+		Debug.Log ("Comparing: " + Time.time + " And  " + (start_time + duration));
+		return Time.time > start_time + duration;
 	}
 
 	public AnimType type;
@@ -46,25 +47,26 @@ public struct Vector3Anim {
 public class Animatable : MonoBehaviour {
 
 	List<Vector3Anim> anims = new List<Vector3Anim>();
+	public bool Animating {
+		get {
+			return anims.Count > 0;
+		}
+	}
 
 	// Take the end time and the duration in milliseconds
-	public void AnimatePosition(Vector3 end, double duration, AnimType type, AnimFunc func) {
+	public void AnimatePosition(Vector3 start, Vector3 end, double duration, AnimFunc func) {
 		var new_anim = new Vector3Anim ();
-		new_anim.start_time = DateTime.Now.Millisecond;
+		new_anim.start_time = Time.time;
 
-		switch (type) {
-		case AnimType.Transform:
-			new_anim.start = transform.position;
-			break;
-		case AnimType.Scale:
-			new_anim.start = transform.localScale;
-			break;
-		}
+		new_anim.start = transform.position;
 
+		new_anim.start = start;
 		new_anim.end = end;
 		new_anim.duration = duration;
-		new_anim.type = type;
+		new_anim.type = AnimType.Position;
 		new_anim.func = func;
+
+		anims.Add (new_anim);
 	}
 
 	// Update is called once per frame
@@ -72,8 +74,8 @@ public class Animatable : MonoBehaviour {
 		for (int ndx = anims.Count - 1; ndx >= 0; ndx--) {
 			Vector3Anim curr_anim = anims [ndx];
 			switch (curr_anim.type) {
-			case AnimType.Transform:
-				transform.position = curr_anim.GetCurrentValue ();
+			case AnimType.Position:
+				transform.localPosition = curr_anim.GetCurrentValue ();
 				break;
 			case AnimType.Scale:
 				transform.localScale = curr_anim.GetCurrentValue ();

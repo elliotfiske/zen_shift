@@ -162,13 +162,6 @@ public class GridScript : MonoBehaviour {
 
 	// Set state back to "not draggin fam"
 	public void TouchEnded(Vector3 drag_offset) {
-		
-		// Wipe buffer tiles
-		foreach (GameObject tile in buffer_tiles) {
-			Destroy (tile);
-		}
-
-		buffer_tiles.Clear ();
 
 		// Snap  everybody to a grid, and modulo-ify them back to the right place
 		if (state == GridState.DraggingCol) {
@@ -228,23 +221,53 @@ public class GridScript : MonoBehaviour {
 
 			// Iterate through the new row and put its elements in the right place
 			for(int x = 0; x < num_cols; x++) {
-				grid [dragging_row] [x] = new_row [x];
-				var pos = new_row [x].transform.localPosition;
-				pos.x = x * grid_size;
-				new_row [x].transform.localPosition = pos;
-
-				new_row [x].GetComponent<TileScript> ().base_posn = pos;
+//				// The tile which we're replacing
+//				var old_tile = grid [dragging_row] [x];
+//				// The tile from new_row that will go in its place.
+//				var new_tile = new_row[x];
+//
+//				// Animate the tile to its rightful place
+//				Vector3 new_pos = old_tile.transform.localPosition;
+//				new_pos.x = x * grid_size;
+//				new_tile.GetComponent<Animatable> ().AnimatePosition (old_tile.transform.localPosition,
+//					new_pos, 0.2, AnimFunc.Cubic);
+//					
+//				// Correct the cell grid
+//				grid [dragging_row] [x] = new_tile;
+//			
+//				// Update base position
+//				new_tile.GetComponent<TileScript> ().base_posn = new_pos;
 			}
+
+			state = GridState.Sliding;
 
 		} else {
 			print ("Ah man I screwed something up.. somewhere");
 		}
-
-		state = GridState.NoTouch;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		// See if we should wait for animations to finish
+		if (state == GridState.Sliding) {
+			// Check all tiles. if none are sliding, transition to NoTouch
+			bool done = true;
+			for (int x = 0; x < num_cols; x++) {
+				for (int y = 0; y < num_rows; y++) {
+					done = done && !grid [y] [x].GetComponent<Animatable> ().Animating;
+				}
+			}
+
+			if (done) {
+				state = GridState.NoTouch;
+
+				// Wipe buffer tiles
+				foreach (GameObject tile in buffer_tiles) {
+					Destroy (tile);
+				}
+
+				buffer_tiles.Clear ();
+			}
+		}
 	}
 }
