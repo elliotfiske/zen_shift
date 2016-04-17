@@ -26,6 +26,10 @@ public class GridScript : MonoBehaviour {
 	//  currently dragged rows.
 	public List<GameObject> buffer_tiles = new List<GameObject>();
 
+	// We don't want to iterate through ALL the currently dragged tiles.
+	// Put them under a parent and just move the parent, dummy!
+	public GameObject drag_parent;
+
 	// Set a row's "offset" to the specified amount.
 	void SlideRow(int row_ndx, float offset) {
 		for (int x = 0; x < num_cols; x++) {
@@ -77,7 +81,7 @@ public class GridScript : MonoBehaviour {
 	}
 
 	// Slap a copy row on the side of the actual row
-	public void AddCopycatRow(int dragging_row, int offset) {
+	public void AddCopycatRow(int dragging_row, int offset, GameObject parent) {
 		for (int x = 0; x < num_cols; x++) {
 			var tile = grid [dragging_row] [x];
 			var copycat = (GameObject)Instantiate (tile);
@@ -199,44 +203,38 @@ public class GridScript : MonoBehaviour {
 
 		} else if (state == GridState.DraggingRow) {
 
-			var offset = drag_offset.x;
-			offset /= grid_size;
-			offset = Mathf.Round (offset);
+			var rounded_offset = drag_offset.x;
+			rounded_offset /= grid_size;
+			rounded_offset = Mathf.Round (rounded_offset);
 
 			// Number of indexes the tiles have shifted.
-			int num_moved = Mathf.RoundToInt(offset);
-			offset *= grid_size;
+			int num_moved = Mathf.RoundToInt(rounded_offset);
+			rounded_offset *= grid_size;
+
 
 			// this list will contain what we need to stick back into the grid at the [dragging_row]th row
 			List<GameObject> new_row = new List<GameObject> ();
 
 			for (int x = 0; x < num_cols; x++) {
-				var tile_pos = grid [dragging_row] [x].GetComponent<TileScript> ().base_posn;
-				tile_pos += new Vector3 (offset, 0);
-				grid [dragging_row] [x].transform.localPosition = tile_pos;
-
 				var wrapped_offset = ModWrap(x - num_moved, num_cols);
 				new_row.Add (grid [dragging_row] [wrapped_offset]);
 			}
 
 			// Iterate through the new row and put its elements in the right place
-			for(int x = 0; x < num_cols; x++) {
-//				// The tile which we're replacing
-//				var old_tile = grid [dragging_row] [x];
-//				// The tile from new_row that will go in its place.
-//				var new_tile = new_row[x];
-//
-//				// Animate the tile to its rightful place
-//				Vector3 new_pos = old_tile.transform.localPosition;
-//				new_pos.x = x * grid_size;
-//				new_tile.GetComponent<Animatable> ().AnimatePosition (old_tile.transform.localPosition,
-//					new_pos, 0.2, AnimFunc.Cubic);
-//					
-//				// Correct the cell grid
-//				grid [dragging_row] [x] = new_tile;
-//			
-//				// Update base position
-//				new_tile.GetComponent<TileScript> ().base_posn = new_pos;
+			for (int x = 0; x < num_cols; x++) {
+				grid [dragging_row] [x] = new_row [x];
+				var pos = new_row [x].transform.localPosition;
+				pos.x = rounded_offset;
+				new_row [x].transform.localPosition = pos;
+
+				new_row [x].GetComponent<TileScript> ().base_posn = new_row [x].transform.localPosition;
+			}
+
+			foreach (GameObject tile in buffer_tiles) {
+				// Animate tile left by offset amount
+				var pos = tile.transform.localPosition;
+				pos.x = rounded_offset;
+				new_row [x].transform.localPosition = pos;
 			}
 
 			state = GridState.Sliding;
