@@ -14,18 +14,18 @@ public struct Vector3Anim {
 	public double duration;
 
 	public Vector3 GetCurrentValue() {
-		double u = (Time.time - start_time) / (duration);
-		double s = 0;
+		float u = (float) ( (float)Time.time - start_time) / ( (float) duration);
+		float s = 0;
 
 		switch (func) {
 		case AnimFunc.Linear:
 			s = u;
 			break;
 		case AnimFunc.Quadratic:
-			s = u * u;
+			s = Mathf.Sqrt (u);
 			break;
 		case AnimFunc.Cubic:
-			s = u * u * u;
+			s = Mathf.Pow(u, 0.3333333f);
 			break;
 		default:
 			break;
@@ -35,7 +35,6 @@ public struct Vector3Anim {
 	}
 
 	public bool Done() {
-		Debug.Log ("Comparing: " + Time.time + " And  " + (start_time + duration));
 		return Time.time > start_time + duration;
 	}
 
