@@ -5,7 +5,7 @@ using System.Collections;
 
 public class GridScript : MonoBehaviour {
 
-	public enum GridState { NoTouch, DraggingRow, DraggingCol, Sliding };
+	public enum GridState { NoTouch, DraggingRow, DraggingCol, SlidingRow, SlidingCol };
 
 	public GridState state;
 
@@ -37,17 +37,7 @@ public class GridScript : MonoBehaviour {
 
 	// Set a col's "offset" to the specified amount.
 	void SlideCol(int col_ndx, float offset) {
-		for (int y = 0; y < num_rows; y++) {
-			var tile_pos = grid [y] [col_ndx].transform.localPosition;
-			tile_pos += new Vector3 (0, offset);
-			grid [y] [col_ndx].transform.localPosition = tile_pos;
-		}
-
-		foreach (GameObject tile in buffer_tiles) {
-			var tile_pos = tile.transform.localPosition;
-			tile_pos += new Vector3 (0, offset);
-			tile.transform.localPosition = tile_pos;
-		}
+		drag_parent.transform.Translate (new Vector3 (0, offset));
 	}
 
 	// Use this for initialization
@@ -80,6 +70,7 @@ public class GridScript : MonoBehaviour {
 			// It's in worldspace by default, treat it like it's my kid
 			copycat.transform.Translate (transform.position);
 
+			// Add to new drag parent transform
 			copycat.transform.parent = daddy.transform;
 
 			copycat.transform.Translate (new Vector3 (offset * num_cols * grid_size, 0));
@@ -87,7 +78,7 @@ public class GridScript : MonoBehaviour {
 	}
 
 	// Slap a copy col on the top and bottom of the actual col
-	public void AddCopycatCol(int dragging_col, int offset) {
+	public void AddCopycatCol(int dragging_col, int offset, GameObject daddy) {
 		for (int y = 0; y < num_rows; y++) {
 			var tile = grid [y] [dragging_col];
 			var copycat = (GameObject)Instantiate (tile);
@@ -95,6 +86,9 @@ public class GridScript : MonoBehaviour {
 
 			// It's in worldspace by default, treat it like it's my kid
 			copycat.transform.Translate (transform.position);
+
+			// Add to new drag parent transform
+			copycat.transform.parent = daddy.transform;
 
 			copycat.transform.Translate (new Vector3 (0, offset * num_rows * grid_size));
 		}
@@ -141,16 +135,22 @@ public class GridScript : MonoBehaviour {
 
 		int col = Mathf.FloorToInt (raw_col);
 
+		drag_parent = new GameObject ("row_daddy", typeof(Animatable));
+
 		if (col <= -1 || col >= num_cols) {
 			// Outta bounds.
 		} else {
 			dragging_col = col;
 			state = GridState.DraggingCol;
 
-			AddCopycatCol (dragging_col, -2);
-			AddCopycatCol (dragging_col, -1);
-			AddCopycatCol (dragging_col, 1);
-			AddCopycatCol (dragging_col, 2);
+			AddCopycatCol (dragging_col, -2, drag_parent);
+			AddCopycatCol (dragging_col, -1, drag_parent);
+			AddCopycatCol (dragging_col, 1, drag_parent);
+			AddCopycatCol (dragging_col, 2, drag_parent);
+
+			for (int ndx = 0; ndx < num_rows; ndx++) {
+				grid [ndx] [dragging_col].transform.parent = drag_parent.transform;
+			}
 		}
 	}
 
@@ -178,36 +178,20 @@ public class GridScript : MonoBehaviour {
 		// Snap  everybody to a grid, and modulo-ify them back to the right place
 		if (state == GridState.DraggingCol) {
 
-			var offset = drag_offset.y;
-			offset /= grid_size;
-			offset = Mathf.Round (offset);
+			var rounded_offset = drag_offset.y;
+			rounded_offset /= grid_size;
+			rounded_offset = Mathf.Round (rounded_offset);
 
-			// integer number of indexes the tiles have shifted.
-			num_moved = Mathf.RoundToInt(offset);
-			offset *= grid_size;
+			// Number of indexes the tiles have shifted.
+			num_moved = Mathf.RoundToInt(rounded_offset);
+			rounded_offset *= grid_size;
 
-			// this list will contain what we need to stick back into the grid at the [dragging_row]th row
-			List<GameObject> new_col = new List<GameObject> ();
+			var old_pos = drag_parent.transform.position;
+			var pos = old_pos;
+			pos.y = rounded_offset;
+			drag_parent.GetComponent<Animatable> ().AnimatePosition (old_pos, pos, 0.15, AnimFunc.Cubic);
 
-			for (int y = 0; y < num_rows; y++) {
-				var tile_pos = grid [y] [dragging_col].GetComponent<TileScript> ().base_posn;
-				tile_pos += new Vector3 (0, offset);
-				grid [y] [dragging_col].transform.localPosition = tile_pos;
-
-				var wrapped_offset = ModWrap(y - num_moved, num_rows);
-				print ("Wrapped offset... " + wrapped_offset);
-				new_col.Add (grid [wrapped_offset] [dragging_col]);
-			}
-
-			// Iterate through the new column and put its elements in the right place
-			for(int y = 0; y < num_rows; y++) {
-				grid [y] [dragging_col] = new_col [y];
-				var pos = new_col [y].transform.localPosition;
-				pos.y = y * grid_size;
-				new_col [y].transform.localPosition = pos;
-
-				new_col [y].GetComponent<TileScript> ().base_posn = pos;
-			}
+			state = GridState.SlidingCol;
 
 		} else if (state == GridState.DraggingRow) {
 
@@ -224,20 +208,19 @@ public class GridScript : MonoBehaviour {
 			pos.x = rounded_offset;
 			drag_parent.GetComponent<Animatable> ().AnimatePosition (old_pos, pos, 0.15, AnimFunc.Cubic);
 
-			state = GridState.Sliding;
+			state = GridState.SlidingRow;
 
 		} else {
-			print ("Ah man I screwed something up.. somewhere");
+			print ("Ah man I screwed something up.. somewhere. Bad state: " + state);
 		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		// See if we should wait for animations to finish
-		if (state == GridState.Sliding) {
+		if (state == GridState.SlidingRow || state == GridState.SlidingCol) {
 			if (!drag_parent.GetComponent<Animatable>().Animating) {
-				state = GridState.NoTouch;
-
+				
 				// Wipe buffer tiles
 				foreach (GameObject tile in buffer_tiles) {
 					Destroy (tile);
@@ -245,30 +228,59 @@ public class GridScript : MonoBehaviour {
 
 				buffer_tiles.Clear ();
 
-				// this list will contain what we need to stick back into the grid at the [dragging_row]th row
-				List<GameObject> new_row = new List<GameObject> ();
+				if (state == GridState.SlidingCol) {
+					// this list will contain what we need to stick back into the grid at the [dragging_row]th row
+					List<GameObject> new_col = new List<GameObject> ();
 
-				for (int x = 0; x < num_cols; x++) {
-					var wrapped_offset = ModWrap(x - num_moved, num_cols);
-					new_row.Add (grid [dragging_row] [wrapped_offset]);
+					for (int y = 0; y < num_rows; y++) {
+						var wrapped_offset = ModWrap(y - num_moved, num_rows);
+						new_col.Add (grid [wrapped_offset] [dragging_col]);
 
-					print ("Hey: " + num_moved);
+						print ("Hey col: " + num_moved);
 
-					// Reset elements in the dragging_row to have me as the parent
-					grid [dragging_row] [x].transform.parent = transform;
-				}
+						// Reset elements in the dragging_row to have me as the parent
+						grid [y] [dragging_col].transform.parent = transform;
+					}
 
-				// Iterate through the new row and put its elements in the right place
-				for (int x = 0; x < num_cols; x++) {
-					grid [dragging_row] [x] = new_row [x];
-					var pos = new_row [x].transform.localPosition;
-					pos.x = x * grid_size;
-					new_row [x].transform.localPosition = pos;
+					// Iterate through the new row and put its elements in the right place
+					for (int y = 0; y < num_rows; y++) {
+						grid [y] [dragging_col] = new_col [y];
+						var pos = new_col [y].transform.localPosition;
+						pos.y = y * grid_size;
+						new_col [y].transform.localPosition = pos;
 
-					new_row [x].GetComponent<TileScript> ().base_posn = new_row [x].transform.localPosition;
+						new_col [y].GetComponent<TileScript> ().base_posn = new_col [y].transform.localPosition;
+					}
+
+				} else if (state == GridState.SlidingRow) {
+					// this list will contain what we need to stick back into the grid at the [dragging_row]th row
+					List<GameObject> new_row = new List<GameObject> ();
+
+					for (int x = 0; x < num_cols; x++) {
+						var wrapped_offset = ModWrap(x - num_moved, num_cols);
+						new_row.Add (grid [dragging_row] [wrapped_offset]);
+
+						print ("Hey row: " + num_moved);
+
+						// Reset elements in the dragging_row to have me as the parent
+						grid [dragging_row] [x].transform.parent = transform;
+					}
+
+					// Iterate through the new row and put its elements in the right place
+					for (int x = 0; x < num_cols; x++) {
+						grid [dragging_row] [x] = new_row [x];
+						var pos = new_row [x].transform.localPosition;
+						pos.x = x * grid_size;
+						new_row [x].transform.localPosition = pos;
+
+						new_row [x].GetComponent<TileScript> ().base_posn = new_row [x].transform.localPosition;
+					}
+				} else {
+					print ("Ah man I screwed something up.. somewhere. Bad state: " + state);
 				}
 					
 				Destroy (drag_parent);
+				state = GridState.NoTouch;
 			}
 		}
 
