@@ -41,12 +41,16 @@ public class MatchMaker : MonoBehaviour {
 			}
 
 			tile.GetComponent<TileScript>().ded = true; // rip
+
+			tile.GetComponent<TileScript> ().Explode ();
 		}
 	}
 
 	// find matches and mark em as match-if-ied
-	public void FindMatches(GridScript grid) {
+	public GridState FindMatches(GridScript grid) {
 		to_destroy.Clear ();
+
+		bool found_match = false;
 
 		// find row matches
 		for (int y = 0; y < grid.num_rows; y++) {
@@ -58,6 +62,7 @@ public class MatchMaker : MonoBehaviour {
 				if (curr_tile != grid.grid [y] [x].GetComponent<TileScript> ().type) {
 					if (innarow >= 3) {
 						// Found match!
+						found_match = true;
 						GotMatch(curr_tiles, grid);
 					}
 					innarow = 0;
@@ -72,6 +77,7 @@ public class MatchMaker : MonoBehaviour {
 			// Check again at the end of a row
 			if (innarow >= 3) {
 				// Found match!
+				found_match = true;
 				GotMatch(curr_tiles, grid);
 			}
 		}
@@ -86,6 +92,7 @@ public class MatchMaker : MonoBehaviour {
 				if (curr_tile != grid.grid [y] [x].GetComponent<TileScript> ().type) {
 					if (innarow >= 3) {
 						// Found match!
+						found_match = true;
 						GotMatch(curr_tiles, grid);
 					}
 					innarow = 0;
@@ -100,11 +107,14 @@ public class MatchMaker : MonoBehaviour {
 			// Check again at the end of a row
 			if (innarow >= 3) {
 				// Found match!
+				found_match = true;
 				GotMatch(curr_tiles, grid);
 			}
 		}
 
 		FixGrid (grid);
+
+		return found_match ? GridState.ResolvingMatches : GridState.NoTouch;
 	}
 
 	public void FixGrid(GridScript grid) {
@@ -131,7 +141,7 @@ public class MatchMaker : MonoBehaviour {
 							var new_me = GameObject.Instantiate(grid.grid [ty][x]);
 							new_me.transform.parent = grid.transform;
 							new_me.transform.localPosition = grid.grid [ty] [x].transform.localPosition;
-							new_me.GetComponent<Rigidbody2D> ().velocity = new Vector3 (0, -0.03f, 0);
+							new_me.GetComponent<Rigidbody2D> ().velocity = new Vector3 (0, -0.1f, 0);
 							grid.grid [y] [x] = new_me;
 							Destroy (curr_tile);
 

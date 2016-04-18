@@ -55,14 +55,11 @@ public class GestureHandler : MonoBehaviour {
 
 	// Pan ended.  Tell the grid to snap to whatever.
 	void PanEnded(object sender, EventArgs e) {
-		var panGesture = sender as PanGesture;
-
 		grid.TouchEnded (total_offset);
 	}
 
 	public void Tapped(object sender, EventArgs e) {
 		var tapGesture = sender as TapGesture;
-		var worldPoint = Camera.main.ScreenToWorldPoint(tapGesture.ScreenPosition);
 	}
 
 	// Use this for initialization

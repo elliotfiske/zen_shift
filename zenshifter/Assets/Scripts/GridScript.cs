@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Collections;
 
+public enum GridState { NoTouch, DraggingRow, DraggingCol, SlidingRow, SlidingCol, ResolvingMatches };
 
 public class GridScript : MonoBehaviour {
 
 	public static Vector3 GRAVITY = new Vector3 (0, -18f, 0);
-
-	public enum GridState { NoTouch, DraggingRow, DraggingCol, SlidingRow, SlidingCol, ResolvingMatches };
 
 	public GridState state;
 
@@ -241,8 +240,6 @@ public class GridScript : MonoBehaviour {
 						var wrapped_offset = ModWrap (y - num_moved, num_rows);
 						new_col.Add (grid [wrapped_offset] [dragging_col]);
 
-						print ("Hey col: " + num_moved);
-
 						// Reset elements in the dragging_row to have me as the parent
 						grid [y] [dragging_col].transform.parent = transform;
 					}
@@ -285,9 +282,8 @@ public class GridScript : MonoBehaviour {
 				}
 					
 				Destroy (drag_parent);
-				state = GridState.ResolvingMatches;
 
-				GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
+				state = GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
 			}
 		} else if (state == GridState.ResolvingMatches) {
 			ResolveMatches ();	
@@ -315,15 +311,17 @@ public class GridScript : MonoBehaviour {
 
 		if (done) {
 			// Reset tiles to kinematic and align them to grid
-			state = GridState.NoTouch;
-
 			for (int x = 0; x < num_cols; x++) {
 				for (int y = 0; y < num_rows; y++) {
 					var tile = grid [y] [x];
 					tile.transform.localPosition = new Vector3 (x * grid_size_x, y * grid_size_y);
 					tile.GetComponent<Rigidbody2D> ().isKinematic = true;
+					tile.GetComponent<TileScript> ().base_posn = new Vector3 (x * grid_size_x, y * grid_size_y);
 				}
 			}
+
+			// returns either NoTouch or ResolvingMatches
+			state = GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
 		}
 	}
 

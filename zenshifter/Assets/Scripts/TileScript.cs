@@ -48,6 +48,34 @@ public class TileScript : MonoBehaviour {
 	}
 	
 	public void Explode() {
-		GameObject.Instantiate (particle_template, transform.position, Quaternion.identity);
+		
+		GameObject farticles = (GameObject) GameObject.Instantiate (particle_template, transform.position, Quaternion.identity);
+		Color c = new Color ();
+		switch (type) {
+		case TileType.Square:
+			ColorUtility.TryParseHtmlString ("#c4e5bd", out c);
+			farticles.GetComponent<ParticleSystem> ().startColor = c;
+			break;
+		case TileType.Circle:
+			ColorUtility.TryParseHtmlString ("#ffb4b4", out c);
+			farticles.GetComponent<ParticleSystem> ().startColor = c;
+			break;
+		case TileType.Star:
+			ColorUtility.TryParseHtmlString ("#f8ff6b", out c);
+			farticles.GetComponent<ParticleSystem> ().startColor = c;
+			break;
+		default:
+			print ("lol u screwed up again: " + type);
+			break;
+		}
+	}
+
+	public void OnCollisionEnter2D(Collision2D coll) {
+		
+		if (coll.gameObject.tag == "FLOOR" || coll.gameObject.GetComponent<Rigidbody2D> ().isKinematic) {
+			// snap to where I'm suppposed to be and stop animating physics
+			GetComponent<Rigidbody2D>().isKinematic = true;
+//			transform.localPosition = base_posn;
+		}
 	}
 }
