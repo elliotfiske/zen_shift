@@ -247,6 +247,23 @@ public class GridScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (state == GridState.NoTouch) {
+//			if (purple_must_die) {
+//				for (int x = 0; x < num_cols; x++) {
+//					for (int y = 0; y < num_rows; y++) {
+//						var tile = grid [y] [x].GetComponent<TileScript> ();
+//						if (tile.type == TileType.Polygon) {
+//							tile.ded = true;
+//						}
+//					}
+//				}
+//
+//				purple_must_die = false;
+//					
+//				state = GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
+//				UpdateBasePosn ();
+//			}
+		} else
 		// See if we should wait for animations to finish
 		if (state == GridState.SlidingRow || state == GridState.SlidingCol) {
 			if (!drag_parent.GetComponent<Animatable> ().Animating) {
@@ -329,9 +346,24 @@ public class GridScript : MonoBehaviour {
 
 		rank_countdown--;
 		if (rank_countdown <= 0) {
-			rank_countdown = 2;
+			rank_countdown = 3;
 			FindObjectOfType<RankScript> ().UpdateRank ();
 		}
+	}
+
+	public bool purple_must_die = false;
+
+	public void KillPurple() {
+//		purple_must_die = true;
+
+//		for (int x = 0; x < num_cols; x++) {
+//			for (int y = 0; y < num_rows; y++) {
+//				var tile = grid [y] [x].GetComponent<TileScript> ();
+//				if (tile.type == TileType.Polygon) {
+//					tile.ded = true;
+//				}
+//			}
+//		}
 	}
 
 	public void ResolveMatches() {

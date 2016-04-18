@@ -39,17 +39,17 @@ public class RankScript : MonoBehaviour {
 	}
 
 	public void UpdateRank() {
-		Random random = new Random ();
+		
 		string rank = "Rank: ";
-		if (ScoreManager.score < 10000m) {
+		if (ScoreManager.score + ScoreManager.total_spent < 10000m) {
 			rank += weak_adj [UnityEngine.Random.Range (0, weak_adj.Length)];
 			rank += " ";
 			rank += weak_noun [UnityEngine.Random.Range (0, weak_noun.Length)];
-		} else if (ScoreManager.score < 20000m) {
+		} else if (ScoreManager.score + ScoreManager.total_spent < 200000m) {
 			rank += decent_adj [UnityEngine.Random.Range (0, decent_adj.Length)];
 			rank += " ";
 			rank += decent_noun [UnityEngine.Random.Range (0, decent_noun.Length)];
-		} else if (ScoreManager.score < 25000m) {
+		} else if (ScoreManager.score + ScoreManager.total_spent < 900000m) {
 			rank += pro_adj[UnityEngine.Random.Range(0,pro_adj.Length)];
 			rank += " ";
 			rank += pro_noun[UnityEngine.Random.Range(0,pro_noun.Length)];

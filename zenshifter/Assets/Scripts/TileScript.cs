@@ -25,7 +25,9 @@ public class TileScript : MonoBehaviour {
 
 	public void RandomizeType () {
 		Array values = Enum.GetValues(typeof(TileType));
-		type = (TileType)values.GetValue(UnityEngine.Random.Range(0, values.Length - 1));
+
+		var nopurp = ScoreManager.can_purple ? 1 : 2;
+		type = (TileType)values.GetValue(UnityEngine.Random.Range(0, values.Length - nopurp));
 
 		Sprite which_sprite = sprites[0];
 

@@ -41,11 +41,12 @@ public class MatchMaker : MonoBehaviour {
 
 		combo++;
 
-		decimal length_bonus = (4m - tiles.Count) * ScoreManager.big_match_multiplier;
+		decimal length_bonus = (tiles.Count - 3m) * ScoreManager.big_match_multiplier;
 		decimal combo_bonus = combo * ScoreManager.combo_multiplier;
 		decimal base_points = tiles.Count * 10;
+		decimal square_bonus = (tiles [0].GetComponent<TileScript> ().type == TileType.Square) ? ScoreManager.square_multiplier : 0m;
 
-		ScoreManager.score += base_points * (length_bonus + combo_bonus);
+		ScoreManager.score += base_points * (1 + length_bonus + combo_bonus + square_bonus + ScoreManager.score_mult);
 
 		foreach (GameObject tile in tiles) {
 			Vector2 coords = FindCoords(tile.GetComponent<TileScript>(), grid_guy);

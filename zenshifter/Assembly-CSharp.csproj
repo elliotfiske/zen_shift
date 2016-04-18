@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\ScoreManager.cs" />
      <Compile Include="Assets\Scripts\TileScript.cs" />
      <Compile Include="Assets\Scripts\TouchBubbleScript.cs" />
+     <Compile Include="Assets\Scripts\ugh.cs" />
      <Compile Include="Assets\TouchScript\Examples\General\2D - Double Tap\Scripts\DoubleTap_Sprite.cs" />
      <Compile Include="Assets\TouchScript\Examples\General\Hierarchy\Scripts\Heirarchy_Button.cs" />
      <Compile Include="Assets\TouchScript\Examples\General\Hierarchy\Scripts\Heirarchy_Panel.cs" />
