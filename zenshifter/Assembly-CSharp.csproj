@@ -51,6 +51,8 @@
      <Compile Include="Assets\Scripts\GestureHandler.cs" />
      <Compile Include="Assets\Scripts\GridScript.cs" />
      <Compile Include="Assets\Scripts\MatchMaker.cs" />
+     <Compile Include="Assets\Scripts\RankScript.cs" />
+     <Compile Include="Assets\Scripts\ScoreManager.cs" />
      <Compile Include="Assets\Scripts\TileScript.cs" />
      <Compile Include="Assets\Scripts\TouchBubbleScript.cs" />
      <Compile Include="Assets\TouchScript\Examples\General\2D - Double Tap\Scripts\DoubleTap_Sprite.cs" />

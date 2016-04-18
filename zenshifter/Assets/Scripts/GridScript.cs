@@ -317,12 +317,20 @@ public class GridScript : MonoBehaviour {
 		}
 	}
 
+	public int rank_countdown = 2;
+
 	public void DoCombos() {
 		var combo = GameObject.FindObjectOfType<MatchMaker> ().combo;
 		GameObject.FindObjectOfType<MatchMaker> ().combo = 0;
 
 		if (combo > 2) {
 			FindObjectOfType<EventDisplay> ().AddString (combo + " COMBO!\n");
+		}
+
+		rank_countdown--;
+		if (rank_countdown <= 0) {
+			rank_countdown = 2;
+			FindObjectOfType<RankScript> ().UpdateRank ();
 		}
 	}
 
