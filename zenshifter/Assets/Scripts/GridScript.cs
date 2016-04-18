@@ -21,6 +21,8 @@ public class GridScript : MonoBehaviour {
 
 	// Multiply the x, y coords by the grid_size to get their pixel coords
 	public float grid_size = 1.64f;
+	public float grid_size_x = 1.65f;
+	public float grid_size_y = 1.64f;
 
 	public GameObject[][] grid;
 	// To simulate a neverending wrap-around, we secretly just add 2 copied rows/cols to either end of the 
@@ -51,7 +53,7 @@ public class GridScript : MonoBehaviour {
 			grid [y] = new GameObject[num_cols];
 			for (int x = 0; x < num_cols; x++) {
 				grid [y] [x] = (GameObject) Instantiate (square_template, 
-					new Vector3(x * grid_size, y * grid_size, 0), Quaternion.identity);
+					new Vector3(x * grid_size_x, y * grid_size_y, 0), Quaternion.identity);
 				grid [y] [x].transform.parent = transform;
 				grid [y] [x].transform.Translate (transform.position.x, transform.position.y, 0);
 
@@ -66,7 +68,7 @@ public class GridScript : MonoBehaviour {
 		for (int x = 0; x < num_cols; x++) {
 			var tile = grid [dragging_row] [x];
 			var copycat = (GameObject)Instantiate (tile);
-			copycat.GetComponent<Rigidbody2D> ().gravityScale = true;
+			copycat.GetComponent<Rigidbody2D> ().isKinematic = true;
 			buffer_tiles.Add (copycat);
 
 			// It's in worldspace by default, treat it like it's my kid
@@ -75,7 +77,7 @@ public class GridScript : MonoBehaviour {
 			// Add to new drag parent transform
 			copycat.transform.parent = daddy.transform;
 
-			copycat.transform.Translate (new Vector3 (offset * num_cols * grid_size, 0));
+			copycat.transform.Translate (new Vector3 (offset * num_cols * grid_size_x, 0));
 		}
 	}
 
@@ -93,7 +95,7 @@ public class GridScript : MonoBehaviour {
 			// Add to new drag parent transform
 			copycat.transform.parent = daddy.transform;
 
-			copycat.transform.Translate (new Vector3 (0, offset * num_rows * grid_size));
+			copycat.transform.Translate (new Vector3 (0, offset * num_rows * grid_size_y));
 		}
 	}
 
@@ -104,7 +106,7 @@ public class GridScript : MonoBehaviour {
 		}
 
 		var local_point = world_point - transform.position;
-		var raw_row = (local_point.y + grid_size / 2) / grid_size;
+		var raw_row = (local_point.y + grid_size_y / 2) / grid_size_y;
 
 		int row = Mathf.FloorToInt (raw_row);
 
@@ -134,7 +136,7 @@ public class GridScript : MonoBehaviour {
 		}
 
 		var local_point = world_point - transform.position;
-		var raw_col = (local_point.x + grid_size / 2) / grid_size;
+		var raw_col = (local_point.x + grid_size_x / 2) / grid_size_x;
 
 		int col = Mathf.FloorToInt (raw_col);
 
@@ -182,12 +184,12 @@ public class GridScript : MonoBehaviour {
 		if (state == GridState.DraggingCol) {
 
 			var rounded_offset = drag_offset.y;
-			rounded_offset /= grid_size;
+			rounded_offset /= grid_size_y;
 			rounded_offset = Mathf.Round (rounded_offset);
 
 			// Number of indexes the tiles have shifted.
 			num_moved = Mathf.RoundToInt(rounded_offset);
-			rounded_offset *= grid_size;
+			rounded_offset *= grid_size_y;
 
 			var old_pos = drag_parent.transform.position;
 			var pos = old_pos;
@@ -199,12 +201,12 @@ public class GridScript : MonoBehaviour {
 		} else if (state == GridState.DraggingRow) {
 
 			var rounded_offset = drag_offset.x;
-			rounded_offset /= grid_size;
+			rounded_offset /= grid_size_x;
 			rounded_offset = Mathf.Round (rounded_offset);
 
 			// Number of indexes the tiles have shifted.
 			num_moved = Mathf.RoundToInt(rounded_offset);
-			rounded_offset *= grid_size;
+			rounded_offset *= grid_size_x;
 
 			var old_pos = drag_parent.transform.position;
 			var pos = old_pos;
@@ -249,7 +251,7 @@ public class GridScript : MonoBehaviour {
 					for (int y = 0; y < num_rows; y++) {
 						grid [y] [dragging_col] = new_col [y];
 						var pos = new_col [y].transform.localPosition;
-						pos.y = y * grid_size;
+						pos.y = y * grid_size_y;
 						new_col [y].transform.localPosition = pos;
 
 						new_col [y].GetComponent<TileScript> ().base_posn = new_col [y].transform.localPosition;
@@ -273,7 +275,7 @@ public class GridScript : MonoBehaviour {
 					for (int x = 0; x < num_cols; x++) {
 						grid [dragging_row] [x] = new_row [x];
 						var pos = new_row [x].transform.localPosition;
-						pos.x = x * grid_size;
+						pos.x = x * grid_size_x;
 						new_row [x].transform.localPosition = pos;
 
 						new_row [x].GetComponent<TileScript> ().base_posn = new_row [x].transform.localPosition;
@@ -303,15 +305,25 @@ public class GridScript : MonoBehaviour {
 					print ("Bad news boys. Null tile at row " + y + " col " + x);
 				}
 
-				if (!tile.GetComponent<Rigidbody2D> ().isKinematic && tile.GetComponent<Rigidbody2D> ().velocity.y != 0) {
+				bool is_movin = Mathf.Abs (tile.GetComponent<Rigidbody2D> ().velocity.y) > 0.02f;
+
+				if (!tile.GetComponent<Rigidbody2D> ().isKinematic && is_movin) {
 					done = false;
 				}
 			}
 		}
 
 		if (done) {
-			// Adjust tile base_posns and ...? i forget :(
+			// Reset tiles to kinematic and align them to grid
 			state = GridState.NoTouch;
+
+			for (int x = 0; x < num_cols; x++) {
+				for (int y = 0; y < num_rows; y++) {
+					var tile = grid [y] [x];
+					tile.transform.localPosition = new Vector3 (x * grid_size_x, y * grid_size_y);
+					tile.GetComponent<Rigidbody2D> ().isKinematic = true;
+				}
+			}
 		}
 	}
 

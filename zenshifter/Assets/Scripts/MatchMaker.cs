@@ -131,6 +131,7 @@ public class MatchMaker : MonoBehaviour {
 							var new_me = GameObject.Instantiate(grid.grid [ty][x]);
 							new_me.transform.parent = grid.transform;
 							new_me.transform.localPosition = grid.grid [ty] [x].transform.localPosition;
+							new_me.GetComponent<Rigidbody2D> ().velocity = new Vector3 (0, -0.03f, 0);
 							grid.grid [y] [x] = new_me;
 							Destroy (curr_tile);
 
@@ -147,6 +148,7 @@ public class MatchMaker : MonoBehaviour {
 						grid.grid[y][x] = Instantiate(grid.square_template);
 						grid.grid [y] [x].transform.parent = grid.transform;
 						grid.grid [y] [x].GetComponent<Rigidbody2D> ().isKinematic = false;
+						grid.grid [y] [x].GetComponent<Rigidbody2D> ().velocity = new Vector3 (0, -0.03f, 0);
 						new_tiles [x].Add (grid.grid [y] [x].GetComponent<TileScript>());
 						Destroy (curr_tile);
 					}
@@ -158,13 +160,13 @@ public class MatchMaker : MonoBehaviour {
 		for (int x = 0; x < grid.num_cols; x++) {
 			List<TileScript> curr_list = new_tiles [x];
 
-			float curr_y = grid.num_rows * grid.grid_size;
+			float curr_y = grid.num_rows * grid.grid_size_y;
 			foreach (TileScript new_tile in curr_list) {
-				new_tile.transform.localPosition = new Vector3 (x * grid.grid_size, curr_y);
+				new_tile.transform.localPosition = new Vector3 (x * grid.grid_size_x, curr_y);
 				new_tile.GetComponent<TileScript> ().RandomizeType ();
 				new_tile.GetComponent<Rigidbody2D> ().isKinematic = false;
 
-				curr_y += grid.grid_size;
+				curr_y += grid.grid_size_y;
 			}
 
 		}
