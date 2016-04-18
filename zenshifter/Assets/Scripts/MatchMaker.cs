@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class MatchMaker : MonoBehaviour {
 
+	public GameObject touch_bub_template;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -43,6 +45,8 @@ public class MatchMaker : MonoBehaviour {
 			tile.GetComponent<TileScript>().ded = true; // rip
 
 			tile.GetComponent<TileScript> ().Explode ();
+
+//			Instantiate (touch_bub_template, tile.transform.position, Quaternion.identity); bring back for bubbles
 		}
 	}
 

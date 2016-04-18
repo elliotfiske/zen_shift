@@ -158,6 +158,33 @@ public class GridScript : MonoBehaviour {
 		}
 	}
 
+	// shrink a tile when we press it
+	public void HoldMe(Vector3 world_point) {
+
+		var local_point = world_point - transform.position;
+		var raw_col = (local_point.x + grid_size_x / 2) / grid_size_x;
+
+		int col = Mathf.FloorToInt (raw_col);
+
+		var raw_row = (local_point.y + grid_size_y / 2) / grid_size_y;
+
+		int row = Mathf.FloorToInt (raw_row);
+
+		if (col >= 0 && col < num_cols && row >= 0 && row < num_rows) {
+			grid [row] [col].GetComponent<Animator> ().SetBool ("held", true);
+		}
+	}
+
+	// unshrink every tile when we're done
+	public void TrashMe() {
+		for (int x = 0; x < num_cols; x++) {
+			for (int y = 0; y < num_rows; y++) {
+				var tile = grid [y] [x];
+				tile.GetComponent<Animator> ().SetBool ("held", false);
+			}
+		}
+	}
+
 	public void TouchMoved (Vector3 drag_offset) {
 		switch (state) {
 		case GridState.DraggingRow:

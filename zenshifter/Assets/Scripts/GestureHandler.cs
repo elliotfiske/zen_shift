@@ -35,6 +35,8 @@ public class GestureHandler : MonoBehaviour {
 
 		total_offset = Vector3.zero;
 
+		grid.HoldMe (worldPoint);
+
 		// Determine if pan horizontal or vertical
 		var dir = panGesture.LocalDeltaPosition;
 		if (Math.Abs (dir.x) < Math.Abs (dir.y)) {
@@ -42,7 +44,7 @@ public class GestureHandler : MonoBehaviour {
 		}
 		else {
 			grid.TouchDownRow (worldPoint);
-		}  
+		}
 	}
 
 	// Pan moved.  Tell the grid what the new offset is.
@@ -56,10 +58,18 @@ public class GestureHandler : MonoBehaviour {
 	// Pan ended.  Tell the grid to snap to whatever.
 	void PanEnded(object sender, EventArgs e) {
 		grid.TouchEnded (total_offset);
+		grid.TrashMe ();
 	}
+
+	public GameObject touch_bub_template;
 
 	public void Tapped(object sender, EventArgs e) {
 		var tapGesture = sender as TapGesture;
+		var worldPoint = Camera.main.ScreenToWorldPoint(tapGesture.ScreenPosition);
+
+		print ("da tap happened! at "  + worldPoint);
+
+		Instantiate (touch_bub_template, worldPoint, Quaternion.identity);
 	}
 
 	// Use this for initialization

@@ -44,7 +44,7 @@ public class TileScript : MonoBehaviour {
 			break;
 		}
 
-		GetComponent<SpriteRenderer> ().sprite = which_sprite;
+		transform.Find("visual_sprite").GetComponent<SpriteRenderer> ().sprite = which_sprite;
 	}
 	
 	public void Explode() {
@@ -71,11 +71,21 @@ public class TileScript : MonoBehaviour {
 	}
 
 	public void OnCollisionEnter2D(Collision2D coll) {
-		
 		if (coll.gameObject.tag == "FLOOR" || coll.gameObject.GetComponent<Rigidbody2D> ().isKinematic) {
 			// snap to where I'm suppposed to be and stop animating physics
 			GetComponent<Rigidbody2D>().isKinematic = true;
+			if (transform.localPosition.y < 0) {
+				var pos = transform.localPosition;
+				pos.y = 0;
+				transform.localPosition = pos;
+			}
 //			transform.localPosition = base_posn;
+		}
+	}
+
+	void OnTriggerEnter2D(Collider2D other) {
+		if (other.tag == "effect") {
+			GetComponent<Animator> ().SetTrigger ("bounce");
 		}
 	}
 }
