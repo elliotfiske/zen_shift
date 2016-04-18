@@ -15,13 +15,12 @@ public class GridScript : MonoBehaviour {
 	public int dragging_row = -1;
 	public int dragging_col = -1;
 
-	public int num_rows = 5;
-	public int num_cols = 6;
+	public int num_rows;
+	public int num_cols;
 
 	// Multiply the x, y coords by the grid_size to get their pixel coords
-	public float grid_size = 1.64f;
-	public float grid_size_x = 1.65f;
-	public float grid_size_y = 1.64f;
+	public float grid_size_x;
+	public float grid_size_y;
 
 	public GameObject[][] grid;
 	// To simulate a neverending wrap-around, we secretly just add 2 copied rows/cols to either end of the 
@@ -311,9 +310,19 @@ public class GridScript : MonoBehaviour {
 				Destroy (drag_parent);
 
 				state = GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
+				UpdateBasePosn ();
 			}
 		} else if (state == GridState.ResolvingMatches) {
 			ResolveMatches ();	
+		}
+	}
+
+	public void DoCombos() {
+		var combo = GameObject.FindObjectOfType<MatchMaker> ().combo;
+		GameObject.FindObjectOfType<MatchMaker> ().combo = 0;
+
+		if (combo > 2) {
+			FindObjectOfType<EventDisplay> ().AddString (combo + " COMBO!\n");
 		}
 	}
 
@@ -349,7 +358,20 @@ public class GridScript : MonoBehaviour {
 
 			// returns either NoTouch or ResolvingMatches
 			state = GameObject.FindObjectOfType<MatchMaker> ().FindMatches (this);
+			UpdateBasePosn ();
+
+			if (state == GridState.NoTouch) {
+				DoCombos ();
+			}
 		}
 	}
 
+	void UpdateBasePosn() {
+		for (int x = 0; x < num_cols; x++) {
+			for (int y = 0; y < num_rows; y++) {
+				var tile = grid [y] [x];
+				tile.GetComponent<TileScript> ().base_posn = new Vector3 (x * grid_size_x, y * grid_size_y);
+			}
+		}
+	}
 }

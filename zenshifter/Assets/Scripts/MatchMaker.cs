@@ -6,6 +6,8 @@ public class MatchMaker : MonoBehaviour {
 
 	public GameObject touch_bub_template;
 
+	public int combo = 0;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -33,6 +35,14 @@ public class MatchMaker : MonoBehaviour {
 	public List<GameObject> to_destroy;
 
 	public void GotMatch(List<GameObject> tiles, GridScript grid_guy) {
+		if (tiles.Count > 3) {
+			FindObjectOfType<EventDisplay> ().AddString (tiles.Count + " IN A ROW!\n");
+		}
+
+		combo++;
+
+
+
 		foreach (GameObject tile in tiles) {
 			Vector2 coords = FindCoords(tile.GetComponent<TileScript>(), grid_guy);
 			int tx = Mathf.RoundToInt (coords.x);

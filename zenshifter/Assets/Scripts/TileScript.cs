@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public enum TileType { Square, Circle, Star, NONE };
+public enum TileType { Square, Circle, Star, Polygon, NONE };
 
 public class TileScript : MonoBehaviour {
 
@@ -39,6 +39,9 @@ public class TileScript : MonoBehaviour {
 		case TileType.Star:
 			which_sprite = sprites [2];
 			break;
+		case TileType.Polygon:
+			which_sprite = sprites [3];
+			break;
 		default:
 			print ("lol u screwed up again: " + type);
 			break;
@@ -64,6 +67,10 @@ public class TileScript : MonoBehaviour {
 			ColorUtility.TryParseHtmlString ("#f8ff6b", out c);
 			farticles.GetComponent<ParticleSystem> ().startColor = c;
 			break;
+		case TileType.Polygon:
+			ColorUtility.TryParseHtmlString ("#e29cff", out c);
+			farticles.GetComponent<ParticleSystem> ().startColor = c;
+			break;
 		default:
 			print ("lol u screwed up again: " + type);
 			break;
@@ -74,9 +81,9 @@ public class TileScript : MonoBehaviour {
 		if (coll.gameObject.tag == "FLOOR" || coll.gameObject.GetComponent<Rigidbody2D> ().isKinematic) {
 			// snap to where I'm suppposed to be and stop animating physics
 			GetComponent<Rigidbody2D>().isKinematic = true;
-			if (transform.localPosition.y < 0) {
+			if (transform.localPosition.y < base_posn.y) {
 				var pos = transform.localPosition;
-				pos.y = 0;
+				pos.y = base_posn.y;
 				transform.localPosition = pos;
 			}
 //			transform.localPosition = base_posn;
