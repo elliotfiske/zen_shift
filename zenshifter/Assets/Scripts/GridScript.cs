@@ -5,6 +5,8 @@ using System.Collections;
 
 public class GridScript : MonoBehaviour {
 
+	public static Vector3 GRAVITY = new Vector3 (0, -18f, 0);
+
 	public enum GridState { NoTouch, DraggingRow, DraggingCol, SlidingRow, SlidingCol, ResolvingMatches };
 
 	public GridState state;
@@ -18,7 +20,7 @@ public class GridScript : MonoBehaviour {
 	public int num_cols = 6;
 
 	// Multiply the x, y coords by the grid_size to get their pixel coords
-	public float grid_size = 1.85f;
+	public float grid_size = 1.64f;
 
 	public GameObject[][] grid;
 	// To simulate a neverending wrap-around, we secretly just add 2 copied rows/cols to either end of the 
@@ -64,6 +66,7 @@ public class GridScript : MonoBehaviour {
 		for (int x = 0; x < num_cols; x++) {
 			var tile = grid [dragging_row] [x];
 			var copycat = (GameObject)Instantiate (tile);
+			copycat.GetComponent<Rigidbody2D> ().gravityScale = true;
 			buffer_tiles.Add (copycat);
 
 			// It's in worldspace by default, treat it like it's my kid
@@ -81,6 +84,7 @@ public class GridScript : MonoBehaviour {
 		for (int y = 0; y < num_rows; y++) {
 			var tile = grid [y] [dragging_col];
 			var copycat = (GameObject)Instantiate (tile);
+			copycat.GetComponent<Rigidbody2D> ().isKinematic = true;
 			buffer_tiles.Add (copycat);
 
 			// It's in worldspace by default, treat it like it's my kid
@@ -306,7 +310,7 @@ public class GridScript : MonoBehaviour {
 		}
 
 		if (done) {
-			// Adjust tile base_posns and 
+			// Adjust tile base_posns and ...? i forget :(
 			state = GridState.NoTouch;
 		}
 	}

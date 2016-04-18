@@ -126,9 +126,11 @@ public class MatchMaker : MonoBehaviour {
 					// If we reach the top of the column with no viable candidate, spawn a new tile on
 					// the right column-stack.
 					bool found_sub = false;
-					for (int ty = y; y < grid.num_rows; y++) {
+					for (int ty = y; ty < grid.num_rows; ty++) {
 						if (!grid.grid [ty] [x].GetComponent<TileScript> ().ded) {
 							var new_me = GameObject.Instantiate(grid.grid [ty][x]);
+							new_me.transform.parent = grid.transform;
+							new_me.transform.localPosition = grid.grid [ty] [x].transform.localPosition;
 							grid.grid [y] [x] = new_me;
 							Destroy (curr_tile);
 
@@ -143,6 +145,8 @@ public class MatchMaker : MonoBehaviour {
 					if (!found_sub) {
 						// make a new tile to go in my spot
 						grid.grid[y][x] = Instantiate(grid.square_template);
+						grid.grid [y] [x].transform.parent = grid.transform;
+						grid.grid [y] [x].GetComponent<Rigidbody2D> ().isKinematic = false;
 						new_tiles [x].Add (grid.grid [y] [x].GetComponent<TileScript>());
 						Destroy (curr_tile);
 					}
@@ -151,12 +155,12 @@ public class MatchMaker : MonoBehaviour {
 		}
 
 		// Resolve subs
-		for (int col = 0; col < grid.num_cols; col++) {
-			List<TileScript> curr_list = new_tiles [col];
+		for (int x = 0; x < grid.num_cols; x++) {
+			List<TileScript> curr_list = new_tiles [x];
 
-			float curr_y = grid.num_cols * grid.grid_size;
+			float curr_y = grid.num_rows * grid.grid_size;
 			foreach (TileScript new_tile in curr_list) {
-				new_tile.transform.localPosition = new Vector3 (col * grid.grid_size, curr_y);
+				new_tile.transform.localPosition = new Vector3 (x * grid.grid_size, curr_y);
 				new_tile.GetComponent<TileScript> ().RandomizeType ();
 				new_tile.GetComponent<Rigidbody2D> ().isKinematic = false;
 

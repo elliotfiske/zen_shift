@@ -45,7 +45,7 @@ public struct Vector3Anim {
 // Defines an object that we can set a target position, duration, and easing function.
 public class Animatable : MonoBehaviour {
 
-	List<Vector3Anim> anims = new List<Vector3Anim>();
+	public List<Vector3Anim> anims = new List<Vector3Anim>();
 	public bool Animating {
 		get {
 			return anims.Count > 0;
