@@ -36,6 +36,10 @@ public class MatchMaker : MonoBehaviour {
 	// Saves up all the matched tiles and destroys them when everything is resolved
 	public List<GameObject> to_destroy;
 
+	public void MuteMusic() {
+		GameObject.Find ("bg (1)").GetComponent<AudioSource> ().Stop ();
+	}
+
 	public void GotMatch(List<GameObject> tiles, GridScript grid_guy) {
 		if (tiles.Count > 3) {
 			FindObjectOfType<EventDisplay> ().AddString (tiles.Count + " IN A ROW!\n");

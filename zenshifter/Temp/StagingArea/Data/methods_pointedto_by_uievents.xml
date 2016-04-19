@@ -5,5 +5,8 @@
 			<method name="ChoseSkill"/>
 			<method name="ChoseSkill"/>
 		</type>
+		<type fullname="MatchMaker">
+			<method name="MuteMusic"/>
+		</type>
 	</assembly>
 </linker>
