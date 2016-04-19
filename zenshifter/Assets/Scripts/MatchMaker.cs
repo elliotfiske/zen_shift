@@ -67,6 +67,11 @@ public class MatchMaker : MonoBehaviour {
 
 	// find matches and mark em as match-if-ied
 	public GridState FindMatches(GridScript grid) {
+		// now seems like a good time to save scores I guess
+		string str_score = ScoreManager.score.ToString();
+		PlayerPrefs.SetString ("score", str_score);
+		PlayerPrefs.Save ();
+
 		to_destroy.Clear ();
 
 		bool found_match = false;

@@ -65,7 +65,6 @@ public class ScoreManager : MonoBehaviour {
 
 		if (skill_pool.Count == 0) {
 			Array values = Enum.GetValues(typeof(Skills));
-			Skills new_skill_type = (Skills)values.GetValue(UnityEngine.Random.Range(0, values.Length - 1));
 
 			for (int i = 0; i < values.Length; i++) {
 				skill_pool.Add ((Skills) values.GetValue (i));
@@ -115,6 +114,9 @@ public class ScoreManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+//		print ("IF U LET THIS GET TO LIVE THEN U ARE A DUMB");
+//		PlayerPrefs.DeleteAll ();
+
 		// Choose 3 random powerups to start
 		for (int i = 0; i < 3; i++) {
 			buyable_skillz [i] = GenerateSkill ();
@@ -124,6 +126,13 @@ public class ScoreManager : MonoBehaviour {
 		// load score if found
 		if (PlayerPrefs.HasKey ("score")) {
 			string old_score = PlayerPrefs.GetString("score");
+			decimal yay = 0;
+			if (Decimal.TryParse (old_score, out yay)) {
+				score = yay;
+			} else {
+				PlayerPrefs.SetString ("score", "0");
+				PlayerPrefs.Save ();
+			}
 		}
 	}
 
@@ -174,6 +183,8 @@ public class ScoreManager : MonoBehaviour {
 	}
 
 	public void ChoseSkill(int ndx) {
+		GameObject.Find ("chaching").GetComponent<AudioSource> ().Play ();
+
 		SkillObj chosen = buyable_skillz [ndx];
 		score -= chosen.cost;
 		total_spent += chosen.cost;
@@ -219,24 +230,24 @@ public class ScoreManager : MonoBehaviour {
 	public string SkillText(Skills skill) {
 		switch (skill) {
 		case Skills.BetterCombos:
-			return "WOMBO\n\nCombos are worth {0:0.0}% more";
+			return "<b>WOMBO</b>\n\nCombos are worth {0:0.0}% more";
 		case Skills.BetterSquares:
-			return "HIP TO BE SQUARE\n\nSquares are worth {0:0.0}% more";
+			return "<b>HIP TO BE SQUARE</b>\n\nSquares are worth {0:0.0}% more";
 
 		case Skills.Idler:
-			return "IDLER'S DELIGHT\n\n+{0:0} cash per second";
+			return "<b>IDLER'S DELIGHT</b>\n\n+{0:0} cash per second";
 
 		case Skills.InstantCash:
-			return "PYRAMID SCHEME\n\nInstantly gives ${0:0}";
+			return "<b>PYRAMID SCHEME</b>\n\nInstantly gives ${0:0}";
 
 		case Skills.NoPurple:
-			return "PURPLE IS OVERRATED\n\nExile pentagons for {0:0.0} seconds";
+			return "<b>PURPLE IS OVERRATED</b>\n\nNo new pentagons for {0:0.0} seconds";
 
 		case Skills.MatchMult:
-			return "MATCH MORE GET MORE\n\nBig matches give {0:0.0}% more ";
+			return "<b>MATCH MORE GET MORE</b>\n\nBig matches give {0:0.0}% more ";
 
 		case Skills.ScoreMult:
-			return "MORE CASH FOR YOUR CASH\n\nScore Multiplier +{0:0.0}%";
+			return "<b>MORE CASH FOR YOUR CASH</b>\n\nScore Multiplier +{0:0.0}%";
 
 		default: 
 			print ("UH OH: unknowns skill " + skill);

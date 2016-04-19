@@ -1,0 +1,9 @@
+<linker>
+	<assembly fullname="Assembly-CSharp">
+		<type fullname="ScoreManager">
+			<method name="ChoseSkill"/>
+			<method name="ChoseSkill"/>
+			<method name="ChoseSkill"/>
+		</type>
+	</assembly>
+</linker>

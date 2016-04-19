@@ -45,11 +45,11 @@ public class RankScript : MonoBehaviour {
 			rank += weak_adj [UnityEngine.Random.Range (0, weak_adj.Length)];
 			rank += " ";
 			rank += weak_noun [UnityEngine.Random.Range (0, weak_noun.Length)];
-		} else if (ScoreManager.score + ScoreManager.total_spent < 200000m) {
+		} else if (ScoreManager.score + ScoreManager.total_spent < 800000m) {
 			rank += decent_adj [UnityEngine.Random.Range (0, decent_adj.Length)];
 			rank += " ";
 			rank += decent_noun [UnityEngine.Random.Range (0, decent_noun.Length)];
-		} else if (ScoreManager.score + ScoreManager.total_spent < 900000m) {
+		} else if (ScoreManager.score + ScoreManager.total_spent < 2000000m) {
 			rank += pro_adj[UnityEngine.Random.Range(0,pro_adj.Length)];
 			rank += " ";
 			rank += pro_noun[UnityEngine.Random.Range(0,pro_noun.Length)];
