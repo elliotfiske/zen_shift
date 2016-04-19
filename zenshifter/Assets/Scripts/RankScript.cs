@@ -6,26 +6,26 @@ public class RankScript : MonoBehaviour {
 
 	string[] weak_adj  = { "Sad", "Measly", "Wimpy", "Gross", "Weak", "Silly", "Donald", "Frowny",
 						"Dead", "Ugly", "Awkward", "Sweaty", "Moist", "Damp", "Young", "Filthy",
-						   "Lil'", "Smelly", "Snivelling", "Terminal", "Slumpy", "Limp"};
+						   "Lil'", "Smelly", "Snivelling", "Terminal", "Slumpy", "Limp", "Forgettable"};
 	string[] weak_noun = { "Clown", "Potato", "Mouse", "Rat", "Baby", "Infant", "Child", "Trump",
 		"Sauce", "Bush", "Worm", "Cow", "Gravy", "Bug", "Soup", "Stockton", "Bizkit",
 	"Soup", "Snake", "Spider", "Scrub", "Pleb", "Burglar", "Casual"};
 
 	string[] decent_adj  = { "Tasty", "Skilled", "Nice", "Good", "Cool", "Bobcat", "Wicked", "Dread", "Dank", "Frog", "VR", "Double",
-	"Triple", "Happy", "Friendly", "Turtle", "Seal", "DJ", "Spooky", };
+	"Triple", "Happy", "Friendly", "Turtle", "Seal", "DJ", "Spooky", "Rude", };
 	string[] decent_noun = { "Wizard", "Circle", "Square", "Star", "Pentagon", "Sorcerer", "Snake Oiler", "Goldthwait",
 	"Developer", "Thomas", "Steinke", "Meme", "Fractions 2", "Hagrid", "Francis",
 		"Artist", "Developer", "Tamer", "Clubber", "Dog", "5-Seater Minivan", "Hippy", "Snek", "Mr. Skeltal", "Skeleton",};
 
 	string[] pro_adj  = { "Radical", "Emperor", "Godly", "Super", "Amazing", "Hyper", "Sith Lord", 
-		"Darth", "Bernie", "Kanye", "Bobcat", "Master", "Princess", "Queen", "Captain", "Mega", "Royal", 
+		"Darth", "Bernie", "Kanye", "Bobcat", "Master", "Princess", "Queen", "Captain", "Mega", "Royal", "Dank",
 		"King", "Prince", "Ultra", "Radiant", "Bejewelled", "Angelic", "Dunder", "Dank", "Chancellor", "Power", "Rare", "Legendary", "All-Star",
-		"Supreme", "Major", "Spoopy", "Wow Much", "l33t",
+		"Supreme", "Major", "Spoopy", "Wow Much", "l33t", "Always", "Eternal", "Wild", "Uncontrollable", "Elemental", "Flaming", "Shiny",
 		  };
 	string[] pro_noun = { "Light-Drifter", "Wizard", "Hero", "Snake Oiler", "Goldthwait", "Sanders", "Skywalker", 
 		"Princess", "Mustang", "Jick", "Riff", "HotStuff", "Avatar", "America", "Boris", "Princess", "Awesome", "Doge",
-		"Hutniss", "Coolio", "Angel", "Demigod", "Dunkey", "Fractions 2", "Rinzler", "Sonic", "Sanic", "Voldemort", "Pepe",
-		"Len", "Lazer", "Scary Skeletons", "Grandma", "Hacker",
+		"Hutnis", "Coolio", "Angel", "Demigod", "Dunkey", "Fractions 2", "Rinzler", "Sonic", "Sanic", "Voldemort", "Pepe",
+		"Len", "Lazer", "Scary Skeletons", "Grandma", "Hacker", "McMahan", "Woodruff",
 		 };
 
 	// Use this for initialization

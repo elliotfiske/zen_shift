@@ -38,7 +38,7 @@ static class MyExtensions
 }
 
 public class ScoreManager : MonoBehaviour {
-
+	
 	public static bool can_purple = true;
 	public float no_purp_time = 0f;
 

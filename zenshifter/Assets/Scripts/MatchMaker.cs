@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class MatchMaker : MonoBehaviour {
 
 	public GameObject touch_bub_template;
+	public AudioSource[] sounds;
+
 
 	public int combo = 0;
 
@@ -38,6 +40,8 @@ public class MatchMaker : MonoBehaviour {
 		if (tiles.Count > 3) {
 			FindObjectOfType<EventDisplay> ().AddString (tiles.Count + " IN A ROW!\n");
 		}
+
+		sounds [UnityEngine.Random.Range (0, sounds.Length - 1)].Play ();;
 
 		combo++;
 
