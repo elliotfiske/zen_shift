@@ -79,6 +79,15 @@ public class TileScript : MonoBehaviour {
 		}
 	}
 
+	public void FixedUpdate() {
+		if (transform.localPosition.y < base_posn.y && !GetComponent<Rigidbody2D>().isKinematic) {
+			Vector3 temp = transform.localPosition;
+			temp.y = base_posn.y;
+			transform.localPosition = temp;
+			GetComponent<Rigidbody2D> ().velocity = Vector2.zero;
+		}
+	}
+
 	public void OnCollisionEnter2D(Collision2D coll) {
 		if (coll.gameObject.tag == "FLOOR" || coll.gameObject.GetComponent<Rigidbody2D> ().isKinematic) {
 			// snap to where I'm suppposed to be and stop animating physics

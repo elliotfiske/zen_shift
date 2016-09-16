@@ -127,7 +127,7 @@ public class GridScript : MonoBehaviour {
 		}
 	}
 
-	// Calculate which row we're dragging, if any
+	// Calculate which col we're dragging, if any
 	public void TouchDownCol(Vector3 world_point) {
 		if (state != GridState.NoTouch) {
 			return; // no touching, stuff is still resolving!
@@ -377,6 +377,7 @@ public class GridScript : MonoBehaviour {
 					print ("Bad news boys. Null tile at row " + y + " col " + x);
 				}
 
+//				bool is_at_target_posn = Mathf.Abs (tile.GetComponent<TileScript> ().base_posn.y - tile.transform.position.y);
 				bool is_movin = Mathf.Abs (tile.GetComponent<Rigidbody2D> ().velocity.y) > 0.02f;
 
 				if (!tile.GetComponent<Rigidbody2D> ().isKinematic && is_movin) {
